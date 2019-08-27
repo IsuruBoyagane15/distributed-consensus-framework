@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 dcf/ProducerGenerator.class
 general/LeaderElectionClient$1.class
 general/LeaderElectionClient.class
 dcf/Client.class
 dcf/ConsumerGenerator.class
+=======
+genaral/LeaderElectionClient.class
+dcf/ProducerGenerator.class
+dcf/Client.class
+dcf/ConsumerGenerator.class
+genaral/LeaderElectionClient$1.class
+>>>>>>> aa8187a26598a161693f384d23963cae120078c8

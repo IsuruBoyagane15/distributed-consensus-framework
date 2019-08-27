@@ -1,4 +1,8 @@
 /home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/Client.java
+<<<<<<< HEAD
 /home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/general/LeaderElectionClient.java
+=======
+/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/genaral/LeaderElectionClient.java
+>>>>>>> aa8187a26598a161693f384d23963cae120078c8
 /home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/ProducerGenerator.java
 /home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/ConsumerGenerator.java
