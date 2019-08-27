@@ -32,11 +32,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-<<<<<<< HEAD
                                         general/LeaderElectionClient
-=======
-                                        LeaderElectionClient
->>>>>>> aa8187a26598a161693f384d23963cae120078c8
                                     </mainClass>
                                 </manifest>
                             </archive>
