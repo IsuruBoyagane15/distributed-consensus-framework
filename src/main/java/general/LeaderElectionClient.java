@@ -1,4 +1,4 @@
-package genaral;
+package general;
 
 import dcf.Client;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
