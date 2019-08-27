@@ -8,7 +8,7 @@ public abstract class Client {
     private String clientId;
     private Boolean consensusAchieved = false;
     private String jsCode;
-    private String evaluation;
+    private String JsEvaluation;
     private KafkaConsumer kafkaConsumer;
     private KafkaProducer kafkaProducer;
     private String topic;
@@ -16,7 +16,7 @@ public abstract class Client {
     public Client(String clientId, String jsCode, String evaluation, String kafkaServer, String topic){
         this.clientId = clientId;
         this.jsCode = jsCode;
-        this.evaluation = evaluation;
+        this.JsEvaluation = evaluation;
         this.topic = topic;
         this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServer, topic, clientId);
         this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServer);
@@ -30,10 +30,6 @@ public abstract class Client {
 
     public String getClientId() {
         return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
     }
 
     public Boolean getConsensusAchieved() {
@@ -52,27 +48,20 @@ public abstract class Client {
         this.jsCode = jsCode;
     }
 
-    public String getEvaluation() {
-        return evaluation;
+    public String getJsEvaluation() {
+        return JsEvaluation;
     }
 
-    public void setEvaluation(String evaluation) {
-        this.evaluation = evaluation;
+    public void setJsEvaluation(String jsEvaluation) {
+        this.JsEvaluation = jsEvaluation;
     }
 
     public KafkaConsumer getKafkaConsumer() {
         return kafkaConsumer;
     }
 
-    public void setKafkaConsumer(KafkaConsumer kafkaConsumer) {
-        this.kafkaConsumer = kafkaConsumer;
-    }
-
     public KafkaProducer getKafkaProducer() {
         return kafkaProducer;
     }
 
-    public void setKafkaProducer(KafkaProducer kafkaProducer) {
-        this.kafkaProducer = kafkaProducer;
-    }
 }
