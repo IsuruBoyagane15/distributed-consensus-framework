@@ -8,11 +8,11 @@ import org.graalvm.polyglot.*;
 
 public class LeaderElectionClient extends Client {
 
-    public LeaderElectionClient(String clientId, String jsCode, String jsEvaluation, String kafkaServer, String topic) {
-        super(clientId, jsCode, jsEvaluation, kafkaServer, topic);
+    public LeaderElectionClient(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServer, String kafkaTopic) {
+        super(clientId, initialJsCode, evaluationJsCode, kafkaServer, kafkaTopic);
     }
 
-    public void consumeMessage(){
+    public void processACommand(){
 
         org.graalvm.polyglot.Context jsContext = Context.create("js");
 
@@ -21,8 +21,8 @@ public class LeaderElectionClient extends Client {
                 ConsumerRecords<String, String> records = this.getKafkaConsumer().poll(10);
 
                 for (ConsumerRecord<String, String> record : records) {
-                    this.setJsCode(this.getJsCode() + record.value());
-                    Value result = jsContext.eval("js",this.getJsCode() + this.getJsEvaluation());
+                    this.setInitialJsCode(this.getInitialJsCode() + record.value());
+                    Value result = jsContext.eval("js",this.getInitialJsCode() + this.getEvaluationJsCode());
 
                     Boolean consensusResult = result.getMember("consensus").asBoolean();
                     Value agreedValue = result.getMember("value");
@@ -67,13 +67,13 @@ public class LeaderElectionClient extends Client {
         Runnable consuming = new Runnable() {
             @Override
             public void run() {
-                clientInstance.consumeMessage();
+                clientInstance.processACommand();
             }
         };
         new Thread(consuming).start();
 
         int clientRank = (int)(1 + Math.random()*100);
-        clientInstance.produceMessages("clientRanks.push({client:\""+ clientInstance.getClientId() + "\",rank:" +
+        clientInstance.writeACommand("clientRanks.push({client:\""+ clientInstance.getClientId() + "\",rank:" +
                 clientRank +"});");
         System.out.println(clientRank);
     }

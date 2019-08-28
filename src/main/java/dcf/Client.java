@@ -7,26 +7,26 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public abstract class Client {
     private String clientId;
     private Boolean consensusAchieved = false;
-    private String jsCode;
-    private String JsEvaluation;
+    private String initialJsCode;
+    private String evaluationJsCode;
     private KafkaConsumer kafkaConsumer;
     private KafkaProducer kafkaProducer;
-    private String topic;
+    private String kafkaTopic;
 
-    public Client(String clientId, String jsCode, String evaluation, String kafkaServer, String topic){
+    public Client(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
         this.clientId = clientId;
-        this.jsCode = jsCode;
-        this.JsEvaluation = evaluation;
-        this.topic = topic;
-        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServer, topic, clientId);
-        this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServer);
+        this.initialJsCode = initialJsCode;
+        this.evaluationJsCode = evaluationJsCode;
+        this.kafkaTopic = kafkaTopic;
+        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServerAddress, kafkaTopic, clientId);
+        this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServerAddress);
     }
 
-    public void produceMessages(String message) {
-        this.kafkaProducer.send(new ProducerRecord<String, String>(this.topic, message));
+    public void writeACommand(String message) {
+        this.kafkaProducer.send(new ProducerRecord<String, String>(this.kafkaTopic, message));
     }
 
-    public abstract void consumeMessage();
+    public abstract void processACommand();
 
     public String getClientId() {
         return clientId;
@@ -40,28 +40,24 @@ public abstract class Client {
         this.consensusAchieved = consensusAchieved;
     }
 
-    public String getJsCode() {
-        return jsCode;
+    public String getInitialJsCode() {
+        return initialJsCode;
     }
 
-    public void setJsCode(String jsCode) {
-        this.jsCode = jsCode;
+    public void setInitialJsCode(String initialJsCode) {
+        this.initialJsCode = initialJsCode;
     }
 
-    public String getJsEvaluation() {
-        return JsEvaluation;
+    public String getEvaluationJsCode() {
+        return evaluationJsCode;
     }
 
-    public void setJsEvaluation(String jsEvaluation) {
-        this.JsEvaluation = jsEvaluation;
+    public void setEvaluationJsCode(String evaluationJsCode) {
+        this.evaluationJsCode = evaluationJsCode;
     }
 
     public KafkaConsumer getKafkaConsumer() {
         return kafkaConsumer;
-    }
-
-    public KafkaProducer getKafkaProducer() {
-        return kafkaProducer;
     }
 
 }
