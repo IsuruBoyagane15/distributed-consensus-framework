@@ -1,14 +1,18 @@
 package general;
 
-import dcf.Client;
+import dcf.ConsensusApplication;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.graalvm.polyglot.*;
 
-public class LeaderElectionClient extends Client {
+public class LeaderElectionApplication extends ConsensusApplication {
 
-    public LeaderElectionClient(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServer, String kafkaTopic) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeaderElectionApplication.class);
+
+    public LeaderElectionApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServer, String kafkaTopic) {
         super(clientId, initialJsCode, evaluationJsCode, kafkaServer, kafkaTopic);
     }
 
@@ -40,15 +44,14 @@ public class LeaderElectionClient extends Client {
             }
 
         } catch(Exception exception) {
-            System.out.println("Exception occurred while reading messages "+ exception);
-            exception.printStackTrace(System.out);
+            LOGGER.error("Exception occurred while processing command", exception);
         }finally {
             this.getKafkaConsumer().close();
         }
     }
 
     public static void electLeader(String clientId, int instanceCount, String kafkaServer){
-        final LeaderElectionClient clientInstance = new LeaderElectionClient(clientId, "var clientRanks = [];" +
+        final LeaderElectionApplication clientInstance = new LeaderElectionApplication(clientId, "var clientRanks = [];" +
                 "result = {consensus:false, value:\"null\"};",
                 "if(Object.keys(clientRanks).length==" + instanceCount + "){" +
                         "var leader = null;"+
@@ -73,12 +76,12 @@ public class LeaderElectionClient extends Client {
         new Thread(consuming).start();
 
         int clientRank = (int)(1 + Math.random()*100);
-        clientInstance.writeACommand("clientRanks.push({client:\""+ clientInstance.getClientId() + "\",rank:" +
+        clientInstance.writeACommand("clientRanks.push({client:\""+ clientInstance.getNodeId() + "\",rank:" +
                 clientRank +"});");
         System.out.println(clientRank);
     }
 
     public static void main(String args[]){
-        LeaderElectionClient.electLeader(args[0], Integer.parseInt(args[1]),"localhost:9092");
+        LeaderElectionApplication.electLeader(args[0], Integer.parseInt(args[1]),"localhost:9092");
     }
 }

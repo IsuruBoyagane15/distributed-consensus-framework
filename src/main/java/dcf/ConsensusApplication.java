@@ -4,8 +4,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-public abstract class Client {
-    private String clientId;
+public abstract class ConsensusApplication {
+    private String nodeId;
     private Boolean consensusAchieved = false;
     private String initialJsCode;
     private String evaluationJsCode;
@@ -13,8 +13,8 @@ public abstract class Client {
     private KafkaProducer kafkaProducer;
     private String kafkaTopic;
 
-    public Client(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
-        this.clientId = clientId;
+    public ConsensusApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
+        this.nodeId = clientId;
         this.initialJsCode = initialJsCode;
         this.evaluationJsCode = evaluationJsCode;
         this.kafkaTopic = kafkaTopic;
@@ -28,8 +28,8 @@ public abstract class Client {
 
     public abstract void processACommand();
 
-    public String getClientId() {
-        return clientId;
+    public String getNodeId() {
+        return nodeId;
     }
 
     public Boolean getConsensusAchieved() {
