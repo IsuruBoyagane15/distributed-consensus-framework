@@ -12,8 +12,9 @@ public class LeaderElectionApplication extends ConsensusApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeaderElectionApplication.class);
 
-    public LeaderElectionApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServer, String kafkaTopic) {
-        super(clientId, initialJsCode, evaluationJsCode, kafkaServer, kafkaTopic);
+    public LeaderElectionApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress,
+                                     String kafkaTopic) {
+        super(clientId, initialJsCode, evaluationJsCode, kafkaServerAddress, kafkaTopic);
     }
 
     public void processACommand(){
@@ -25,20 +26,24 @@ public class LeaderElectionApplication extends ConsensusApplication {
                 ConsumerRecords<String, String> records = this.getKafkaConsumer().poll(10);
 
                 for (ConsumerRecord<String, String> record : records) {
-                    this.setInitialJsCode(this.getInitialJsCode() + record.value());
-                    Value result = jsContext.eval("js",this.getInitialJsCode() + this.getEvaluationJsCode());
-
-                    Boolean consensusResult = result.getMember("consensus").asBoolean();
-                    Value agreedValue = result.getMember("value");
-
-                    if (consensusResult){
-                        this.setConsensusAchieved(true);
-                        System.out.println("Consensus.");
-                        System.out.println(agreedValue);
-                        Thread.sleep(5000);
+                    if (record.value().equals("RESET")){
+                        this.setInitialJsCode("var clientRanks = [];" + "result = {consensus:false, value:null};");
                     }
-                    else{
-                        System.out.println(false);
+                    else {
+                        this.setInitialJsCode(this.getInitialJsCode() + record.value());
+                        Value result = jsContext.eval("js", this.getInitialJsCode() + this.getEvaluationJsCode());
+
+                        Boolean consensusResult = result.getMember("consensus").asBoolean();
+                        Value agreedValue = result.getMember("value");
+
+                        if (consensusResult) {
+                            this.writeACommand("RESET");
+                            this.setConsensusAchieved(true);
+                            System.out.println(agreedValue);
+                            Thread.sleep(20000);
+                        } else {
+                            System.out.println(false);
+                        }
                     }
                 }
             }
@@ -61,11 +66,14 @@ public class LeaderElectionApplication extends ConsensusApplication {
                         "result.consensus=true;" +
                         "result.value = clientRanks[i].client;" +
                         "maxRank = clientRanks[i].rank;" +
-                        " }" +
+                        "}" +
                         "}" +
                         "}" +
                         "result;",
-                kafkaServer, "electLeader");
+                kafkaServer, "Leader");
+
+        System.out.println(clientInstance.getNodeId());
+
 
         Runnable consuming = new Runnable() {
             @Override
