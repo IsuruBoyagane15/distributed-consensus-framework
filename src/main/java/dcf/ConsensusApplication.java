@@ -9,16 +9,16 @@ public abstract class ConsensusApplication {
     private Boolean consensusAchieved = false;
     private String initialJsCode;
     private String evaluationJsCode;
-    private KafkaConsumer kafkaConsumer;
-    private KafkaProducer kafkaProducer;
+    private KafkaConsumer<String, String> kafkaConsumer;
+    private KafkaProducer<String, String> kafkaProducer;
     private String kafkaTopic;
 
-    public ConsensusApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
-        this.nodeId = clientId;
+    public ConsensusApplication(String nodeId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
+        this.nodeId = nodeId;
         this.initialJsCode = initialJsCode;
         this.evaluationJsCode = evaluationJsCode;
         this.kafkaTopic = kafkaTopic;
-        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServerAddress, kafkaTopic, clientId);
+        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServerAddress, kafkaTopic, nodeId);
         this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServerAddress);
     }
 
@@ -56,7 +56,7 @@ public abstract class ConsensusApplication {
         this.evaluationJsCode = evaluationJsCode;
     }
 
-    public KafkaConsumer getKafkaConsumer() {
+    public KafkaConsumer<String, String> getKafkaConsumer() {
         return kafkaConsumer;
     }
 
