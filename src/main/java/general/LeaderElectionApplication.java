@@ -12,9 +12,9 @@ public class LeaderElectionApplication extends ConsensusApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LeaderElectionApplication.class);
 
-    public LeaderElectionApplication(String clientId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress,
+    public LeaderElectionApplication(String nodeId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress,
                                      String kafkaTopic) {
-        super(clientId, initialJsCode, evaluationJsCode, kafkaServerAddress, kafkaTopic);
+        super(nodeId, initialJsCode, evaluationJsCode, kafkaServerAddress, kafkaTopic);
     }
 
     public void processACommand(){
