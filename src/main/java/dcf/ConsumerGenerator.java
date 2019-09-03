@@ -7,12 +7,12 @@ import java.util.Properties;
 
 public class ConsumerGenerator {
 
-    public static KafkaConsumer<String, String> generateConsumer(String kafkaServer, String topic, String clientId) {
+    public static KafkaConsumer<String, String> generateConsumer(String kafkaServer, String topic, String consumerGroupId) {
 
         Properties props = new Properties();
 
         props.put("bootstrap.servers", kafkaServer);
-        props.put("group.id",clientId); //specifies consumer group - all the clients which want to come to consensus should be part of same group
+        props.put("group.id",consumerGroupId); //specifies consumer group - all the clients which want to come to consensus should be a member of same group
         props.put("enable.auto.commit","true"); //let consumer to commit most recently read offset to kafka - default behaviour
         props.put("auto.commit.interval.ms","1000");
         String deserializer = "org.apache.kafka.common.serialization.StringDeserializer";

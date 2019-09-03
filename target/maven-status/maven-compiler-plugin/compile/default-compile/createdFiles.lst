@@ -1,3 +1,4 @@
-dcf/ConsensusApplication.class
 dcf/ProducerGenerator.class
+dcf/ConsensusApplication.class
+dcf/DistributedConsensusFramework.class
 dcf/ConsumerGenerator.class

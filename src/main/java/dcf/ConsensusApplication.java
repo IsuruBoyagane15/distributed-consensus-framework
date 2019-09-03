@@ -1,35 +1,30 @@
 package dcf;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-
 public abstract class ConsensusApplication {
-    private String nodeId;
+    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
     private Boolean consensusAchieved = false;
-    private String initialJsCode;
-    private String evaluationJsCode;
-    private KafkaConsumer<String, String> kafkaConsumer;
-    private KafkaProducer<String, String> kafkaProducer;
-    private String kafkaTopic;
 
-    public ConsensusApplication(String nodeId, String initialJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
+    public ConsensusApplication(String nodeId, String runtimeJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
         this.nodeId = nodeId;
-        this.initialJsCode = initialJsCode;
+        this.runtimeJsCode = runtimeJsCode;
         this.evaluationJsCode = evaluationJsCode;
         this.kafkaTopic = kafkaTopic;
-        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServerAddress, kafkaTopic, nodeId);
-        this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServerAddress);
     }
 
-    public void writeACommand(String message) {
-        this.kafkaProducer.send(new ProducerRecord<String, String>(this.kafkaTopic, message));
+    public String getKafkaTopic() {
+        return kafkaTopic;
     }
 
-    public abstract void processACommand();
+    public void setKafkaTopic(String kafkaTopic) {
+        this.kafkaTopic = kafkaTopic;
+    }
 
     public String getNodeId() {
         return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public Boolean getConsensusAchieved() {
@@ -40,12 +35,12 @@ public abstract class ConsensusApplication {
         this.consensusAchieved = consensusAchieved;
     }
 
-    public String getInitialJsCode() {
-        return initialJsCode;
+    public String getRuntimeJsCode() {
+        return runtimeJsCode;
     }
 
-    public void setInitialJsCode(String initialJsCode) {
-        this.initialJsCode = initialJsCode;
+    public void setRuntimeJsCode(String runtimeJsCode) {
+        this.runtimeJsCode = runtimeJsCode;
     }
 
     public String getEvaluationJsCode() {
@@ -56,8 +51,5 @@ public abstract class ConsensusApplication {
         this.evaluationJsCode = evaluationJsCode;
     }
 
-    public KafkaConsumer<String, String> getKafkaConsumer() {
-        return kafkaConsumer;
-    }
 
 }

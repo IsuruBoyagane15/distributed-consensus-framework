@@ -61,6 +61,11 @@
             <artifactId>truffle-api</artifactId>
             <version>1.0.0-rc10</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.26</version>
+        </dependency>
 
     </dependencies>
 
