@@ -1,5 +1,7 @@
 package dcf;
 
+import org.graalvm.polyglot.Value;
+
 public abstract class ConsensusApplication {
     private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
     private Boolean consensusAchieved = false;
@@ -10,6 +12,8 @@ public abstract class ConsensusApplication {
         this.evaluationJsCode = evaluationJsCode;
         this.kafkaTopic = kafkaTopic;
     }
+
+    public abstract Boolean onReceiving(Value evaluationOutput);
 
     public String getKafkaTopic() {
         return kafkaTopic;
@@ -50,6 +54,5 @@ public abstract class ConsensusApplication {
     public void setEvaluationJsCode(String evaluationJsCode) {
         this.evaluationJsCode = evaluationJsCode;
     }
-
 
 }
