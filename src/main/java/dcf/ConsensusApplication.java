@@ -3,14 +3,16 @@ package dcf;
 import org.graalvm.polyglot.Value;
 
 public abstract class ConsensusApplication {
-    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
+    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic, kafkaServerAddress;
     private Boolean consensusAchieved = false;
 
-    public ConsensusApplication(String nodeId, String runtimeJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic){
+    public ConsensusApplication(String nodeId, String runtimeJsCode, String evaluationJsCode, String kafkaServerAddress,
+                                String kafkaTopic){
         this.nodeId = nodeId;
         this.runtimeJsCode = runtimeJsCode;
         this.evaluationJsCode = evaluationJsCode;
         this.kafkaTopic = kafkaTopic;
+        this.kafkaServerAddress = kafkaServerAddress;
     }
 
     public abstract Boolean onReceiving(Value evaluationOutput);
@@ -55,4 +57,11 @@ public abstract class ConsensusApplication {
         this.evaluationJsCode = evaluationJsCode;
     }
 
+    public String getKafkaServerAddress() {
+        return kafkaServerAddress;
+    }
+
+    public void setKafkaServerAddress(String kafkaServerAddress) {
+        this.kafkaServerAddress = kafkaServerAddress;
+    }
 }
