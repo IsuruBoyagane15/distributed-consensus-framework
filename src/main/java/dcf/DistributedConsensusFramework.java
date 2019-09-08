@@ -11,85 +11,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DistributedConsensusFramework {
-    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
+//    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
     private KafkaConsumer<String, String> kafkaConsumer;
     private KafkaProducer<String, String> kafkaProducer;
     private org.graalvm.polyglot.Context jsContext;
-    private ConsensusApplication app;
+    private ConsensusApplication distributedNode;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributedConsensusFramework.class);
 
-    public DistributedConsensusFramework(String nodeId, String runtimeJsCode, final String evaluationJsCode,
-                                         String kafkaServerAddress, String kafkaTopic, final ConsensusApplication app){
-        this.nodeId = nodeId;
-        this.runtimeJsCode = runtimeJsCode;
-        this.evaluationJsCode = evaluationJsCode;
-        this.kafkaTopic = kafkaTopic;
-        this.kafkaConsumer = ConsumerGenerator.generateConsumer(kafkaServerAddress, kafkaTopic, nodeId);
-        this.kafkaProducer = ProducerGenerator.generateProducer(kafkaServerAddress);
+    public DistributedConsensusFramework(ConsensusApplication distributedNode){
         this.jsContext = Context.create("js");
-        this.app = app;
+        this.distributedNode  = distributedNode;
+    }
+
+    public void start(){
+        this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(), distributedNode.getKafkaTopic(), distributedNode.getNodeId());
+        this.kafkaProducer = ProducerGenerator.generateProducer(distributedNode.getKafkaServerAddress());
 
         Runnable consuming = new Runnable() {
             public void run() {
-            Boolean consensusAchieved = false;
-            try {
-                while (!consensusAchieved) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
-
-                    for (ConsumerRecord<String, String> record : records) {
-                        if (record.value().equals("RESET")){
-                            setRuntimeJsCode("var clientRanks = [];" + "result = {consensus:false, value:null};");
-                        }
-                        else {
-                            Value result = evaluateJsCode(record.value());
-                            consensusAchieved = app.onReceiving(result);
+                Boolean consensusAchieved = false;
+                try {
+                    while (!consensusAchieved) {
+                        ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
+                        for (ConsumerRecord<String, String> record : records) {
+                            if (record.value().equals("RESET")){
+                                distributedNode.setRuntimeJsCode("var clientRanks = [];" + "result = {consensus:false, value:null};");
+                            }
+                            else {
+                                Value result = evaluateJsCode(record.value());
+                                consensusAchieved = distributedNode.onReceiving(result);
+                            }
                         }
                     }
+                } catch(Exception exception) {
+                    LOGGER.error("Exception occurred while processing command", exception);
+                }finally {
+                    kafkaConsumer.close();
                 }
-
-            } catch(Exception exception) {
-                LOGGER.error("Exception occurred while processing command", exception);
-            }finally {
-                kafkaConsumer.close();
-            }
             }
         };
         new Thread(consuming).start();
     }
 
     public void writeACommand(String command) {
-        this.kafkaProducer.send(new ProducerRecord<String, String>(this.kafkaTopic, command));
+        kafkaProducer.send(new ProducerRecord<String, String>(distributedNode.getKafkaTopic(), command));
     }
 
     public Value evaluateJsCode(String command){
-        this.runtimeJsCode = this.runtimeJsCode +  command;
-        String jsCodeToEvaluate = this.runtimeJsCode + this.evaluationJsCode;
-        return this.jsContext.eval("js",jsCodeToEvaluate);
+        distributedNode.setRuntimeJsCode(distributedNode.getRuntimeJsCode() +  command);
+        return jsContext.eval("js",distributedNode.getRuntimeJsCode()+ distributedNode.getEvaluationJsCode());
     }
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public String getRuntimeJsCode() {
-        return runtimeJsCode;
-    }
-
-    public void setRuntimeJsCode(String runtimeJsCode) {
-        this.runtimeJsCode = runtimeJsCode;
-    }
-
-    public String getEvaluationJsCode() {
-        return evaluationJsCode;
-    }
-
-    public void setEvaluationJsCode(String evaluationJsCode) {
-        this.evaluationJsCode = evaluationJsCode;
-    }
-
-    public KafkaConsumer<String, String> getKafkaConsumer() {
-        return kafkaConsumer;
-    }
-
 }
