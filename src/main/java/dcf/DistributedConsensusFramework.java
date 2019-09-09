@@ -10,8 +10,9 @@ import org.graalvm.polyglot.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class DistributedConsensusFramework {
-//    private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic;
     private KafkaConsumer<String, String> kafkaConsumer;
     private KafkaProducer<String, String> kafkaProducer;
     private org.graalvm.polyglot.Context jsContext;
@@ -25,27 +26,50 @@ public class DistributedConsensusFramework {
     }
 
     public void start(){
-        this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(), distributedNode.getKafkaTopic(), distributedNode.getNodeId());
+        this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(),
+                distributedNode.getKafkaTopic(), distributedNode.getNodeId());
         this.kafkaProducer = ProducerGenerator.generateProducer(distributedNode.getKafkaServerAddress());
+
+        final String initialJsCode = this.distributedNode.getRuntimeJsCode();
+
+        writeACommand("IN,"+distributedNode.getNodeId());
 
         Runnable consuming = new Runnable() {
             public void run() {
                 Boolean consensusAchieved = false;
+                Boolean resetDone = false;
+                ArrayList<String> participants = new ArrayList<String>();
                 try {
-                    while (!consensusAchieved) {
+                    while (!resetDone) {
                         ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
                         for (ConsumerRecord<String, String> record : records) {
-                            if (record.value().equals("RESET")){
-                                distributedNode.setRuntimeJsCode("var clientRanks = [];" + "result = {consensus:false, value:null};");
+
+                            if (record.value().startsWith("RESET,") || record.value().startsWith("IN,")){
+                                String[] commands = record.value().split(",");
+                                if (commands[0].equals("RESET")){
+                                    participants.remove(commands[1]);
+                                    if (participants.size() == 0){
+                                        distributedNode.setRuntimeJsCode(initialJsCode);
+                                        if (consensusAchieved){
+                                            resetDone = true;
+                                        }
+                                    }
+                                }
+                                if (commands[0].equals("IN")){
+                                    participants.add(commands[1]);
+                                }
                             }
                             else {
                                 Value result = evaluateJsCode(record.value());
                                 consensusAchieved = distributedNode.onReceiving(result);
+                                if (consensusAchieved){
+                                    writeACommand("RESET,"+ distributedNode.getNodeId());
+                                }
                             }
                         }
                     }
                 } catch(Exception exception) {
-                    LOGGER.error("Exception occurred while processing command", exception);
+                    LOGGER.error("Exception occurred while processing command :", exception);
                 }finally {
                     kafkaConsumer.close();
                 }
