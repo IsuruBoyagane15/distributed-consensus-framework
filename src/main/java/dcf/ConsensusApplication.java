@@ -15,7 +15,9 @@ public abstract class ConsensusApplication {
         this.kafkaServerAddress = kafkaServerAddress;
     }
 
-    public abstract Boolean onReceiving(Value evaluationOutput);
+    public abstract boolean onReceiving(Value evaluationOutput);
+
+    public abstract void commitAgreedValue(Value evaluationOutput);
 
     public String getKafkaTopic() {
         return kafkaTopic;
