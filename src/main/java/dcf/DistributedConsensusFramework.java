@@ -23,53 +23,54 @@ public class DistributedConsensusFramework {
     public DistributedConsensusFramework(ConsensusApplication distributedNode){
         this.jsContext = Context.create("js");
         this.distributedNode  = distributedNode;
-    }
-
-    public void start(){
         this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(),
                 distributedNode.getKafkaTopic(), distributedNode.getNodeId());
         this.kafkaProducer = ProducerGenerator.generateProducer(distributedNode.getKafkaServerAddress());
+    }
+
+    public void start(){
 
         final String initialJsCode = this.distributedNode.getRuntimeJsCode();
 
-        writeACommand("IN,"+distributedNode.getNodeId());
+        writeACommand("IN,"+ distributedNode.getNodeId());
 
         Runnable consuming = new Runnable() {
             public void run() {
-                Boolean consensusAchieved = false;
-                Boolean resetDone = false;
-                ArrayList<String> participants = new ArrayList<String>();
+                boolean consensusAchieved = false;
+                boolean correctRoundIdentified = false;
+                ArrayList<String> participantIds = new ArrayList<String>();
                 try {
-                    while (!resetDone) {
+                    while (!consensusAchieved) {
                         ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
                         for (ConsumerRecord<String, String> record : records) {
-
-                            if (record.value().startsWith("RESET,") || record.value().startsWith("IN,")){
-                                String[] commands = record.value().split(",");
-                                if (commands[0].equals("RESET")){
-                                    participants.remove(commands[1]);
-                                    if (participants.size() == 0){
-                                        distributedNode.setRuntimeJsCode(initialJsCode);
-                                        if (consensusAchieved){
-                                            resetDone = true;
-                                        }
-                                    }
-                                }
-                                if (commands[0].equals("IN")){
-                                    participants.add(commands[1]);
+                            if (record.value().startsWith("IN,")) {
+                                String[] inCommand = record.value().split(",");
+                                participantIds.add(inCommand[1]);
+                                if (inCommand[1].equals(distributedNode.getNodeId())) {
+                                    correctRoundIdentified = true;
                                 }
                             }
-                            else {
+                            else if (record.value().startsWith("RESET,")){
+                                String[] resetCommands = record.value().split(",");
+                                participantIds.remove(resetCommands[1]);
+                                if (participantIds.size() == 0){
+                                    distributedNode.setRuntimeJsCode(initialJsCode);
+                                }
+                            }
+                            else{
                                 Value result = evaluateJsCode(record.value());
                                 consensusAchieved = distributedNode.onReceiving(result);
                                 if (consensusAchieved){
-                                    writeACommand("RESET,"+ distributedNode.getNodeId());
+                                    if (correctRoundIdentified){
+                                        distributedNode.commitAgreedValue(result);
+                                        writeACommand("RESET,"+ distributedNode.getNodeId());
+                                    }
                                 }
                             }
                         }
                     }
                 } catch(Exception exception) {
-                    LOGGER.error("Exception occurred while processing command :", exception);
+                    LOGGER.error("Exception occurred :", exception);
                 }finally {
                     kafkaConsumer.close();
                 }
@@ -83,7 +84,8 @@ public class DistributedConsensusFramework {
     }
 
     public Value evaluateJsCode(String command){
-        distributedNode.setRuntimeJsCode(distributedNode.getRuntimeJsCode() +  command);
-        return jsContext.eval("js",distributedNode.getRuntimeJsCode()+ distributedNode.getEvaluationJsCode());
+        distributedNode.setRuntimeJsCode(distributedNode.getRuntimeJsCode() + command);
+        return jsContext.eval("js",distributedNode.getRuntimeJsCode()+
+                distributedNode.getEvaluationJsCode());
     }
 }
