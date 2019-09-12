@@ -4,7 +4,6 @@ import org.graalvm.polyglot.Value;
 
 public abstract class ConsensusApplication {
     private String nodeId, runtimeJsCode, evaluationJsCode, kafkaTopic, kafkaServerAddress;
-    private Boolean consensusAchieved = false;
 
     public ConsensusApplication(String nodeId, String runtimeJsCode, String evaluationJsCode, String kafkaServerAddress,
                                 String kafkaTopic){
@@ -23,24 +22,8 @@ public abstract class ConsensusApplication {
         return kafkaTopic;
     }
 
-    public void setKafkaTopic(String kafkaTopic) {
-        this.kafkaTopic = kafkaTopic;
-    }
-
     public String getNodeId() {
         return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    public Boolean getConsensusAchieved() {
-        return consensusAchieved;
-    }
-
-    public void setConsensusAchieved(Boolean consensusAchieved) {
-        this.consensusAchieved = consensusAchieved;
     }
 
     public String getRuntimeJsCode() {
@@ -55,15 +38,8 @@ public abstract class ConsensusApplication {
         return evaluationJsCode;
     }
 
-    public void setEvaluationJsCode(String evaluationJsCode) {
-        this.evaluationJsCode = evaluationJsCode;
-    }
-
     public String getKafkaServerAddress() {
         return kafkaServerAddress;
     }
 
-    public void setKafkaServerAddress(String kafkaServerAddress) {
-        this.kafkaServerAddress = kafkaServerAddress;
-    }
 }
