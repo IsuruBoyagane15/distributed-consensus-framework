@@ -65,6 +65,9 @@ public class DistributedConsensusFramework {
                                         distributedNode.commitAgreedValue(result);
                                         writeACommand("RESET,"+ distributedNode.getNodeId());
                                     }
+                                    else{
+                                        consensusAchieved = false;
+                                    }
                                 }
                             }
                         }
