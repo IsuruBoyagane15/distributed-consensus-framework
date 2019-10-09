@@ -57,12 +57,16 @@ public class DistributedConsensusFramework {
                                     distributedNode.setRuntimeJsCode(initialJsCode);
                                 }
                             }
+                            else if(record.value().startsWith("ALIVE,")){
+                                System.out.println("in fw ALIVE");
+                                distributedNode.commitAgreedValue(null, record.value());
+                            }
                             else{
                                 Value result = evaluateJsCode(record.value());
                                 consensusAchieved = distributedNode.onReceiving(result);
                                 if (consensusAchieved){
                                     if (correctRoundIdentified){
-                                        distributedNode.commitAgreedValue(result);
+                                        distributedNode.commitAgreedValue(result, null);
                                         writeACommand("RESET,"+ distributedNode.getNodeId());
                                     }
                                     else{

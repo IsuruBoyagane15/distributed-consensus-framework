@@ -16,7 +16,7 @@ public abstract class ConsensusApplication {
 
     public abstract boolean onReceiving(Value evaluationOutput);
 
-    public abstract void commitAgreedValue(Value evaluationOutput);
+    public abstract void commitAgreedValue(Value evaluationOutput, String state);
 
     public String getKafkaTopic() {
         return kafkaTopic;
