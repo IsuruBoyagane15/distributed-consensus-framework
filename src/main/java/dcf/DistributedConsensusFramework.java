@@ -38,9 +38,10 @@ public class DistributedConsensusFramework {
             public void run() {
                 boolean consensusAchieved = false;
                 boolean correctRoundIdentified = false;
+                boolean roundFinished = false;
                 ArrayList<String> participantIds = new ArrayList<String>();
                 try {
-                    while (!consensusAchieved) {
+                    while (true) {
                         ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
                         for (ConsumerRecord<String, String> record : records) {
                             if (record.value().startsWith("IN,")) {
@@ -58,7 +59,6 @@ public class DistributedConsensusFramework {
                                 }
                             }
                             else if(record.value().startsWith("ALIVE,")){
-                                System.out.println("in fw ALIVE");
                                 distributedNode.commitAgreedValue(null, record.value());
                             }
                             else{
@@ -67,7 +67,7 @@ public class DistributedConsensusFramework {
                                 if (consensusAchieved){
                                     if (correctRoundIdentified){
                                         distributedNode.commitAgreedValue(result, null);
-                                        writeACommand("RESET,"+ distributedNode.getNodeId());
+//                                        writeACommand("RESET,"+ distributedNode.getNodeId());
                                     }
                                     else{
                                         consensusAchieved = false;
@@ -77,6 +77,7 @@ public class DistributedConsensusFramework {
                         }
                     }
                 } catch(Exception exception) {
+                    System.out.println("done");
                     LOGGER.error("Exception occurred :", exception);
                 }finally {
                     kafkaConsumer.close();
