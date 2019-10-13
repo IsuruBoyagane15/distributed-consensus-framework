@@ -57,6 +57,9 @@ public class DistributedConsensus {
                                     distributedNode.setRuntimeJsCode(initialJsCode);
                                 }
                             }
+                            else if(record.value().startsWith("ALIVE,")){
+                                distributedNode.commitAgreedValue(null);
+                            }
                             else{
                                 Value result = evaluateJsCode(record.value());
                                 consensusAchieved = distributedNode.onReceiving(result);
