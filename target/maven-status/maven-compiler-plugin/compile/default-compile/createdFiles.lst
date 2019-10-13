@@ -1,5 +1,5 @@
-dcf/ProducerGenerator.class
-dcf/ConsensusApplication.class
-dcf/DistributedConsensusFramework.class
-dcf/DistributedConsensusFramework$1.class
-dcf/ConsumerGenerator.class
+distributedConsensus/ConsumerGenerator.class
+distributedConsensus/DistributedConsensus.class
+distributedConsensus/ProducerGenerator.class
+distributedConsensus/DistributedConsensus$1.class
+distributedConsensus/ConsensusApplication.class

@@ -1,4 +1,4 @@
-/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/ProducerGenerator.java
-/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/DistributedConsensusFramework.java
-/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/ConsumerGenerator.java
-/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/dcf/ConsensusApplication.java
+/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/distributedConsensus/DistributedConsensus.java
+/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/distributedConsensus/ConsensusApplication.java
+/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/distributedConsensus/ConsumerGenerator.java
+/home/isurub/IdeaProjects/distributed-consensus-framework/src/main/java/distributedConsensus/ProducerGenerator.java
