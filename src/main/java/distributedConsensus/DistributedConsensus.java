@@ -19,13 +19,25 @@ public class DistributedConsensus {
     private ConsensusApplication distributedNode;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributedConsensus.class);
+    private static DistributedConsensus instance = null;
 
-    public DistributedConsensus(ConsensusApplication distributedNode){
+    private DistributedConsensus(ConsensusApplication distributedNode){
         this.jsContext = Context.create("js");
         this.distributedNode  = distributedNode;
         this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(),
                 distributedNode.getKafkaTopic(), distributedNode.getNodeId());
         this.kafkaProducer = ProducerGenerator.generateProducer(distributedNode.getKafkaServerAddress());
+    }
+
+    public static DistributedConsensus getDistributeConsensus(ConsensusApplication distributedNode){
+        if (instance == null){
+            synchronized (DistributedConsensus.class){
+                if (instance == null){
+                    instance = new DistributedConsensus(distributedNode);
+                }
+            }
+        }
+        return instance;
     }
 
     public void start(){
