@@ -20,6 +20,7 @@ public class DistributedConsensus {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributedConsensus.class);
     private static DistributedConsensus instance = null;
+    private boolean terminate;
 
     private DistributedConsensus(ConsensusApplication distributedNode){
         this.jsContext = Context.create("js");
@@ -27,7 +28,16 @@ public class DistributedConsensus {
         this.kafkaConsumer = ConsumerGenerator.generateConsumer(distributedNode.getKafkaServerAddress(),
                 distributedNode.getKafkaTopic(), distributedNode.getNodeId());
         this.kafkaProducer = ProducerGenerator.generateProducer(distributedNode.getKafkaServerAddress());
+        this.terminate = false;
     }
+
+    public void setTerminate(boolean terminate) {
+        this.terminate = terminate;
+    }
+
+    public void finishRound(String nodeId){
+        writeACommand("RESET," + nodeId);
+    };
 
     public static DistributedConsensus getDistributeConsensus(ConsensusApplication distributedNode){
         if (instance == null){
@@ -52,7 +62,7 @@ public class DistributedConsensus {
                 boolean correctRoundIdentified = false;
                 ArrayList<String> participantIds = new ArrayList<String>();
                 try {
-                    while (!consensusAchieved) {
+                    while (!terminate) {
                         ConsumerRecords<String, String> records = kafkaConsumer.poll(10);
                         for (ConsumerRecord<String, String> record : records) {
                             if (record.value().startsWith("IN,")) {
